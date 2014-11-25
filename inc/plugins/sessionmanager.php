@@ -78,6 +78,22 @@ function sessionmanager_install()
 	);
 	$db->insert_query("templates", $templatearray);
 
+	$template = '<img src="{$mybb->settings[\'bburl\']}/images/buddy_online.png" alt="[{$lang->activesession}]" title="{$lang->activesession}" />';
+	$templatearray = array(
+		"title" => "sessions_statusicon_on",
+		"template" => $db->escape_string($template),
+		"sid" => "-2",
+	);
+	$db->insert_query("templates", $templatearray);
+
+	$template = '<img src="{$mybb->settings[\'bburl\']}/images/buddy_offline.png" />';
+	$templatearray = array(
+		"title" => "sessions_statusicon_off",
+		"template" => $db->escape_string($template),
+		"sid" => "-2",
+	);
+	$db->insert_query("templates", $templatearray);
+
 	$template = '<tr>
 	<td class="{$trow}">{$active}{$ses[\'loc\']}</td>
 	<td class="{$trow}">{$ses[\'browser\']}</td>
@@ -167,7 +183,7 @@ function sessions_usercp()
 
 	// We want to display the current session on top - and don't allow revoking it
 	$revoke = ""; $colspan='colspan="2"';
-	$active = "<img src=\"{$mybb->settings['bburl']}/images/minion.gif\" alt=\"[{$lang->activesession}]\" title=\"{$lang->activesession}\" />";
+	$active = eval($templates->render("sessions_statusicon_on"));
 	$query = $db->simple_select("sessionmanager", "*", "sid='{$session->sid}'");
 	$ses = $db->fetch_array($query);
 	// Prepare output
@@ -197,7 +213,7 @@ function sessions_usercp()
 
 	// And now the other sessions...
 	$colspan="";
-	$active = "<img src=\"{$mybb->settings['bburl']}/images/minioff.gif\" />";
+	$active = eval($templates->render("sessions_statusicon_off"));
 	$sessions = "";
 	$query = $db->simple_select("sessionmanager", "*", "uid={$session->uid} AND sid!='{$session->sid}' AND revoked=0", array("order_by" => "time DESC"));
 	while($ses = $db->fetch_array($query))
